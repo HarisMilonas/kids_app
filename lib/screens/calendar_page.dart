@@ -40,15 +40,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   String headerTitle = groupedItems[index]['month_year'];
 
                   // Build header for each month
-                  Widget header = ListTile(
-                    tileColor: Colors.white,
-                    title: Center(
-                      child: Text(
-                        headerTitle,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  );
+                  Widget header = headerTile(headerTitle);
 
                   DateTime firstDayOfMonth =
                       DateTime.parse(groupedItems[index]["days"][0]["date"]);
@@ -71,73 +63,16 @@ class _CalendarPageState extends State<CalendarPage> {
                         DateFormat('yyyy-MM-dd').format(DateTime.now()) ==
                             item['date'];
 
-                    // Replace with your card widget creation logic
-                    return Tooltip(
-                      triggerMode: TooltipTriggerMode.longPress,
-                      message:
-                          "Μασελάκι: 6 ώρες σήμερα.\nΑυτή την εβδομάδα: 15 ώρες.",
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                              CustomPageRouter.fadeThroughPageRoute(EditDayPage(
-                            selectedDay: Calendar.fromMap(item),
-                          )));
-                        },
-                        child: Card(
-                          color: isCurrentDate ? Colors.yellow : Colors.white,
-                          elevation: 5,
-                          shadowColor: Colors.black,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                          margin: const EdgeInsets.all(5),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [Text(dayOfWeek), Text(dayOfMonth)],
-                          ),
-                        ),
-                      ),
-                    );
+                  
+                    return dayCard(context, item, isCurrentDate, dayOfWeek, dayOfMonth);
                   }).toList();
 
+                  //insert empty items ahead of the days that the week is not starting
                   for (int i = 0; i < startingIndex; i++) {
-                    cards.insert(0,  Tooltip(
-                    
-                      message: "",
-                      child:Container()
-                    ) );
+                    cards.insert(0, Tooltip(message: "", child: Container()));
                   }
 
-                  return Column(
-                    children: [
-                      header,
-                      SizedBox(
-                        height: 280,
-                        child: AnimationLimiter(
-                          child: GridView.count(
-                            physics:
-                                const NeverScrollableScrollPhysics(), //so we won't scroll the days only the big list with the months
-                            crossAxisCount: columnCount,
-                            children: List.generate(
-                              cards.length,
-                              (int index) {
-                                return AnimationConfiguration.staggeredGrid(
-                                  position: index,
-                                  duration: const Duration(milliseconds: 375),
-                                  columnCount: columnCount,
-                                  child: ScaleAnimation(
-                                    child: FadeInAnimation(
-                                      child: cards[index],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
+                  return daysGrid(header, cards);
                 },
               );
             } else if (snapshot.hasError) {
@@ -160,6 +95,80 @@ class _CalendarPageState extends State<CalendarPage> {
             }
           }),
     ));
+  }
+
+  ListTile headerTile(String headerTitle) {
+    return ListTile(
+                  tileColor: Colors.white,
+                  title: Center(
+                    child: Text(
+                      headerTitle,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                );
+  }
+
+  Column daysGrid(Widget header, List<Widget> cards) {
+    return Column(
+                  children: [
+                    header,
+                    SizedBox(
+                      height: 280,
+                      child: AnimationLimiter(
+                        child: GridView.count(
+                          physics:
+                              const NeverScrollableScrollPhysics(), //so we won't scroll the days only the big list with the months
+                          crossAxisCount: columnCount,
+                          children: List.generate(
+                            cards.length,
+                            (int index) {
+                              return AnimationConfiguration.staggeredGrid(
+                                position: index,
+                                duration: const Duration(milliseconds: 375),
+                                columnCount: columnCount,
+                                child: ScaleAnimation(
+                                  child: FadeInAnimation(
+                                    child: cards[index],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+  }
+
+  Tooltip dayCard(BuildContext context, Map<String, dynamic> item, bool isCurrentDate, String dayOfWeek, String dayOfMonth) {
+    return Tooltip(
+                    triggerMode: TooltipTriggerMode.longPress,
+                    message:
+                        "Μασελάκι: 6 ώρες σήμερα.\nΑυτή την εβδομάδα: 15 ώρες.",
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                            CustomPageRouter.fadeThroughPageRoute(EditDayPage(
+                          selectedDay: Calendar.fromMap(item),
+                        )));
+                      },
+                      child: Card(
+                        color: isCurrentDate ? Colors.yellow : Colors.white,
+                        elevation: 5,
+                        shadowColor: Colors.black,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                        margin: const EdgeInsets.all(5),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [Text(dayOfWeek), Text(dayOfMonth)],
+                        ),
+                      ),
+                    ),
+                  );
   }
 
   List<Map<String, dynamic>> groupCalendarItemsByMonthYear(

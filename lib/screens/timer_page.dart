@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:offline_app/componets/loading_dialog.dart';
 import 'package:offline_app/componets/page_router.dart';
+import 'package:offline_app/controllers/calendar_controller.dart';
 import 'package:offline_app/screens/calendar_page.dart';
 import 'package:offline_app/styles/color_style.dart';
 import 'package:offline_app/styles/text_styles.dart';
@@ -93,17 +95,22 @@ class _TimerPageState extends State<TimerPage> {
               height: MediaQuery.of(context).size.height * 0.60,
               margin: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.white,
-                  // gradient: const LinearGradient(
-                  //     colors: [Colors.deepPurpleAccent, Colors.cyanAccent])
-                  ),
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white,
+                // gradient: const LinearGradient(
+                //     colors: [Colors.deepPurpleAccent, Colors.cyanAccent])
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   // photos
-                  const CircleAvatar(
-                    backgroundImage: null,
+                  InkWell(
+                    onTap: () {
+                      completeDialog(context);
+                    },
+                    child: const CircleAvatar(
+                      backgroundImage: null,
+                    ),
                   ),
                   TextButton(
                       onPressed: () {
@@ -206,6 +213,52 @@ class _TimerPageState extends State<TimerPage> {
                   onPressed: () {
                     resetTimer();
                     Navigator.pop(context);
+                  },
+                  child: const Text(
+                    "Ναι",
+                  )),
+            ],
+          ));
+
+  Future<dynamic> completeDialog(BuildContext context) => showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+            backgroundColor: Colors.tealAccent,
+            title: Text(
+              // "Έβγαλες το μασελάκι σου;",
+              "Complete service?",
+              style: TextStyle(
+                  color: customDialogPink(), fontWeight: FontWeight.bold),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  // "Να σταματησω το χρονομετρο;",
+                  "do you want to stop the timer",
+                  style: TextStyle(
+                      fontSize: 16,
+                      color: customDialogPink(),
+                      fontWeight: FontWeight.bold),
+                )
+              ],
+            ),
+            actions: [
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Όχι")),
+              const SizedBox(width: 10),
+              ElevatedButton(
+                  onPressed: () async {
+                    loadingDialog(context);
+                    int elapsedMinutes = (seconds / 60).floor();
+                    await CalendarController.createOrUpdateDay(elapsedMinutes);
+                    if (mounted) {
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    }
                   },
                   child: const Text(
                     "Ναι",
