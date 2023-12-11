@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 TextStyle headerStyles() {
   return const TextStyle(
       fontSize: 35,
-      color: Color.fromARGB(255, 58, 145, 122),
+      color: Colors.white,
+      // Color.fromARGB(255, 58, 145, 122),
       fontWeight: FontWeight.bold,
       fontStyle: FontStyle.italic,
       decorationThickness: 15,

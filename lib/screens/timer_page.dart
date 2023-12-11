@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:offline_app/componets/loading_dialog.dart';
-import 'package:offline_app/db/db_helper.dart';
+import 'package:offline_app/componets/page_router.dart';
+import 'package:offline_app/screens/calendar_page.dart';
 import 'package:offline_app/styles/color_style.dart';
 import 'package:offline_app/styles/text_styles.dart';
 import 'package:sqlite_viewer/sqlite_viewer.dart';
@@ -94,8 +94,10 @@ class _TimerPageState extends State<TimerPage> {
               margin: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  gradient: const LinearGradient(
-                      colors: [Colors.deepPurpleAccent, Colors.cyanAccent])),
+                  color: Colors.white,
+                  // gradient: const LinearGradient(
+                  //     colors: [Colors.deepPurpleAccent, Colors.cyanAccent])
+                  ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -105,10 +107,10 @@ class _TimerPageState extends State<TimerPage> {
                   ),
                   TextButton(
                       onPressed: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (_) => const DatabaseList(
-                            
-                            )));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const DatabaseList()));
                       },
                       child: const Text("See DB")),
 
@@ -151,12 +153,10 @@ class _TimerPageState extends State<TimerPage> {
                         borderRadius: BorderRadius.circular(30),
                         color: Colors.white),
                     child: InkWell(
-                      onTap: () async {
-                        loadingDialog(context);
-                        await SQLHelper.db();
-                        if (mounted) {
-                          Navigator.pop(context);
-                        }
+                      onTap: () {
+                        Navigator.of(context).push(
+                            CustomPageRouter.fadeThroughPageRoute(
+                                const CalendarPage()));
                       },
                       child: const Icon(
                         Icons.calendar_month_outlined,

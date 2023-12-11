@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 
+
 class SQLHelper {
   // create tables
   static Future<void> createTables(sql.Database database) async {
-     await database.execute('''CREATE TABLE calendar(
-      date TEXT PRIMARY KEY NOT NULL,
+    await database.execute('''CREATE TABLE calendar(
+      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      date TEXT NOT NULL UNIQUE,
       duration TEXT,
+      details JSON,
       comments TEXT
     )
 ''');
@@ -22,32 +25,52 @@ class SQLHelper {
       await createTables(database);
       await insertRowsForYear2023(database);
     }, onUpgrade: (db, oldVersion, newVersion) async {
-      if (oldVersion < newVersion) {
-      }
+      if (oldVersion < newVersion) {}
     });
   }
 
   static Future<void> insertRowsForYear2023(sql.Database database) async {
-    try {
-      var batch = database.batch();
-      for (int month = 1; month <= 12; month++) {
-        int daysInMonth = DateTime(2024, month + 1, 0).day;
-        for (int day = 1; day <= daysInMonth; day++) {
-          DateTime date = DateTime(2024, month, day);
-          String formattedDate = DateFormat('dd-MM-yyyy').format(date);
-          batch.insert(
-            'calendar',
-            {'date': formattedDate, 'duration': null, 'comments': null},
-            conflictAlgorithm: sql.ConflictAlgorithm.ignore,
-          );
-        }
-      }
-      await batch.commit();
-    } catch (error) {
-      debugPrint("Error: ${error.toString()}");
+  try {
+    var batch = database.batch();
+    // Add 20 days from December 10, 2023, to December 31, 2023
+    DateTime startDate = DateTime(2023, 12, 10);
+    DateTime endDate = DateTime(2023, 12, 31);
+
+    for (DateTime date = startDate;
+        date.isBefore(endDate.add(const Duration(days: 1)));
+        date = date.add(const Duration(days: 1))) {
+      // Format the date as 'yyyy-MM-dd'
+      String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+
+      // Add each record to the batch
+      batch.insert(
+        'calendar',
+        {'date': formattedDate, 'duration': null, 'details': null, 'comments': null},
+        conflictAlgorithm: sql.ConflictAlgorithm.ignore,
+      );
     }
+
+    for (int month = 1; month <= 12; month++) {
+      int daysInMonth = DateTime(2024, month + 1, 0).day;
+      for (int day = 1; day <= daysInMonth; day++) {
+        DateTime date = DateTime(2024, month, day);
+        // Format the date as 'yyyy-MM-dd'
+        String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+
+        batch.insert(
+          'calendar',
+          {'date': formattedDate, 'duration': null, 'details': null, 'comments': null},
+          conflictAlgorithm: sql.ConflictAlgorithm.ignore,
+        );
+      }
+    }
+    await batch.commit();
+  } catch (error) {
+    debugPrint("Error: ${error.toString()}");
   }
 }
+}
+
 
 //   static Future<int> createData(Map<String, dynamic> model) async {
 //     final db = await SQLHelper.db();

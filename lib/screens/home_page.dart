@@ -1,6 +1,7 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:offline_app/componets/page_router.dart';
 import 'package:offline_app/screens/timer_page.dart';
 
 import 'package:offline_app/styles/text_styles.dart';
@@ -30,19 +31,25 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: AnimatedTextKit(
                   isRepeatingAnimation: false,
                   animatedTexts: [
-                    TyperAnimatedText('Γεια σου και πάλι τάδε!',
+                    TyperAnimatedText(
+                      "LaLizas Test Application",
+                      // 'Γεια σου και πάλι τάδε!',
                         textStyle: headerStyles()),
                     TyperAnimatedText(
-                        'Ήρθε μήπως η ώρα\nνα φορέσουμε το\n  μασελάκι μας;',
+                      "This is a test application",
+                        // 'Ήρθε μήπως η ώρα\nνα φορέσουμε το\n  μασελάκι μας;',
                         textStyle: headerStyles()),
-                    TyperAnimatedText('Φύγαμε!', textStyle: headerStyles()),
+                    TyperAnimatedText(
+                      "Lets go",
+                      // 'Φύγαμε!',
+                       textStyle: headerStyles()),
                   ],
                   onFinished: () {
-                    Navigator.of(context).push(_fadeThroughPageRoute(const TimerPage()));
+                    Navigator.of(context).push(CustomPageRouter.fadeThroughPageRoute(const TimerPage()));
 
                   },
                   onTap: () {
-                     Navigator.of(context).push(_fadeThroughPageRoute(const TimerPage()));
+                     Navigator.of(context).push(CustomPageRouter.fadeThroughPageRoute(const TimerPage()));
                   },
                 ),
               ),
@@ -52,22 +59,5 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     ));
   }
-
-  PageRouteBuilder _fadeThroughPageRoute(Widget page) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => page,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0);
-        const end = Offset.zero;
-        const curve = Curves.easeInOut;
-
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-        var offsetAnimation = animation.drive(tween);
-
-        return SlideTransition(position: offsetAnimation, child: child);
-      },
-    );
-  }
+  
 }
