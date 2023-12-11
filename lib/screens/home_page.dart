@@ -32,11 +32,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   isRepeatingAnimation: false,
                   animatedTexts: [
                     TyperAnimatedText(
-                      "LaLizas Test Application",
+                      "LaLizas ",
                       // 'Γεια σου και πάλι τάδε!',
                         textStyle: headerStyles()),
                     TyperAnimatedText(
-                      "This is a test application",
+                      "This is ",
                         // 'Ήρθε μήπως η ώρα\nνα φορέσουμε το\n  μασελάκι μας;',
                         textStyle: headerStyles()),
                     TyperAnimatedText(

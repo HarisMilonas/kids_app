@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:intl/intl.dart';
+import 'package:offline_app/componets/page_router.dart';
 import 'package:offline_app/controllers/calendar_controller.dart';
 import 'package:offline_app/models/calendar.dart';
+import 'package:offline_app/screens/edit_day._page.dart';
 import 'package:offline_app/styles/color_style.dart';
 
 class CalendarPage extends StatefulWidget {
@@ -14,7 +16,6 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   int columnCount = 7;
-
 
   @override
   Widget build(BuildContext context) {
@@ -28,75 +29,116 @@ class _CalendarPageState extends State<CalendarPage> {
             if (snapshot.hasData) {
               List<Calendar> calendarDays = snapshot.data!;
 
+              // make a list with the month and the days inside the days key
               List<Map<String, dynamic>> groupedItems =
                   groupCalendarItemsByMonthYear(
                       calendarDays.map((day) => day.toMap()).toList());
 
-              return Expanded(
-                child: ListView.builder(
-                  itemCount: groupedItems.length,
-                  itemBuilder: (context, index) {
-                    String headerTitle = groupedItems[index]['month_year'];
+              return ListView.builder(
+                itemCount: groupedItems.length,
+                itemBuilder: (context, index) {
+                  String headerTitle = groupedItems[index]['month_year'];
 
-                    // Build header for each month
-                    Widget header = ListTile(
-                      tileColor: Colors.white,
-                      title: Center(
-                        child: Text(
-                          headerTitle,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                  // Build header for each month
+                  Widget header = ListTile(
+                    tileColor: Colors.white,
+                    title: Center(
+                      child: Text(
+                        headerTitle,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  );
+
+                  DateTime firstDayOfMonth =
+                      DateTime.parse(groupedItems[index]["days"][0]["date"]);
+                  int startingIndex = (firstDayOfMonth.weekday + 6) %
+                      7; // Adjust index to start from Monday
+
+                  // Build list of cards for each month
+                  List<Widget> cards = (groupedItems[index]["days"]
+                          as List<Map<String, dynamic>>)
+                      .map((item) {
+                    DateTime dateTime = DateTime.parse(item["date"]);
+
+                    // Get abbreviated day of the week (e.g., "Mon", "Tue")
+                    String dayOfWeek = DateFormat('EEE').format(dateTime);
+
+                    // Get day of the month as a number
+                    String dayOfMonth = DateFormat('d').format(dateTime);
+
+                    bool isCurrentDate =
+                        DateFormat('yyyy-MM-dd').format(DateTime.now()) ==
+                            item['date'];
+
+                    // Replace with your card widget creation logic
+                    return Tooltip(
+                      triggerMode: TooltipTriggerMode.longPress,
+                      message:
+                          "Μασελάκι: 6 ώρες σήμερα.\nΑυτή την εβδομάδα: 15 ώρες.",
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                              CustomPageRouter.fadeThroughPageRoute(EditDayPage(
+                            selectedDay: Calendar.fromMap(item),
+                          )));
+                        },
+                        child: Card(
+                          color: isCurrentDate ? Colors.yellow : Colors.white,
+                          elevation: 5,
+                          shadowColor: Colors.black,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          margin: const EdgeInsets.all(5),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [Text(dayOfWeek), Text(dayOfMonth)],
+                          ),
                         ),
                       ),
                     );
+                  }).toList();
 
-                  
-                    // Build list of cards for each month
-                    List<Widget> cards = (groupedItems[index]["days"]
-                            as List<Map<String, dynamic>>)
-                        .map((item) {
-                      // Replace with your card widget creation logic
-                      return const Card(
-                        color: Colors.white,
-                        elevation: 5,
-                        shadowColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                        margin: EdgeInsets.all(5),
-                      );
-                    }).toList();
+                  for (int i = 0; i < startingIndex; i++) {
+                    cards.insert(0,  Tooltip(
+                    
+                      message: "",
+                      child:Container()
+                    ) );
+                  }
 
-                    return Column(
-                      children: [
-                        header,
-                        SizedBox(
-                          height: 300,
-                          child: AnimationLimiter(
-                            child: GridView.count(
-                              physics: const NeverScrollableScrollPhysics(),    //so we won't scroll the days only the big list with the months
-                              crossAxisCount: columnCount, 
-                              children: List.generate(
-                                cards.length,
-                                (int index) {
-                                  return AnimationConfiguration.staggeredGrid(
-                                    position: index,
-                                    duration: const Duration(milliseconds: 375),
-                                    columnCount: columnCount,
-                                    child: ScaleAnimation(
-                                      child: FadeInAnimation(
-                                        child: cards[index],
-                                      ),
+                  return Column(
+                    children: [
+                      header,
+                      SizedBox(
+                        height: 280,
+                        child: AnimationLimiter(
+                          child: GridView.count(
+                            physics:
+                                const NeverScrollableScrollPhysics(), //so we won't scroll the days only the big list with the months
+                            crossAxisCount: columnCount,
+                            children: List.generate(
+                              cards.length,
+                              (int index) {
+                                return AnimationConfiguration.staggeredGrid(
+                                  position: index,
+                                  duration: const Duration(milliseconds: 375),
+                                  columnCount: columnCount,
+                                  child: ScaleAnimation(
+                                    child: FadeInAnimation(
+                                      child: cards[index],
                                     ),
-                                  );
-                                },
-                              ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
-                      ],
-                    );
-                  },
-                ),
+                      ),
+                    ],
+                  );
+                },
               );
             } else if (snapshot.hasError) {
               return AlertDialog(
