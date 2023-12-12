@@ -74,6 +74,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   List<Widget> cards = (groupedItems[index]["days"]
                           as List<Map<String, dynamic>>)
                       .map((item) {
+                        
                     DateTime dateTime = DateTime.parse(item["date"]);
 
                     // Get abbreviated day of the week (e.g., "Mon", "Tue")
@@ -109,16 +110,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 },
               );
             } else if (snapshot.hasError) {
-              return AlertDialog(
-                title: Text(
-                  "Ουπς!",
-                  style: TextStyle(
-                      color: customDialogPink(), fontWeight: FontWeight.bold),
-                ),
-                content: const Center(
-                    child: Text(
-                        'Κάτι δεν πηγε πολύ καλα, προσπάθησε να ανοίξεις ξανα την εφαρμογή!')),
-              );
+              return errorDialog();
             } else {
               return Center(
                 child: CircularProgressIndicator(
@@ -128,6 +120,19 @@ class _CalendarPageState extends State<CalendarPage> {
             }
           }),
     ));
+  }
+
+  AlertDialog errorDialog() {
+    return AlertDialog(
+              title: Text(
+                "Ουπς!",
+                style: TextStyle(
+                    color: customDialogPink(), fontWeight: FontWeight.bold),
+              ),
+              content: const Center(
+                  child: Text(
+                      'Κάτι δεν πηγε πολύ καλα, προσπάθησε να ανοίξεις ξανα την εφαρμογή!')),
+            );
   }
 
   ListTile headerTile(String headerTitle) {

@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:offline_app/componets/loading_dialog.dart';
+import 'package:offline_app/componets/dialogs/complete_dialog.dart';
+import 'package:offline_app/componets/dialogs/loading_dialog.dart';
+import 'package:offline_app/componets/dialogs/reset_dialog.dart';
 import 'package:offline_app/componets/page_router.dart';
 import 'package:offline_app/controllers/calendar_controller.dart';
 import 'package:offline_app/screens/calendar_page.dart';
-import 'package:offline_app/styles/color_style.dart';
 import 'package:offline_app/styles/text_styles.dart';
 import 'package:sqlite_viewer/sqlite_viewer.dart';
 
@@ -106,7 +107,7 @@ class _TimerPageState extends State<TimerPage> {
                   // photos
                   InkWell(
                     onTap: () {
-                      completeDialog(context);
+                      completeDialog(context, _saveTime);
                     },
                     child: const CircleAvatar(
                       backgroundImage: null,
@@ -135,7 +136,10 @@ class _TimerPageState extends State<TimerPage> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              resetDialog(context);
+                              resetDialog(context, () {
+                                resetTimer();
+                                Navigator.pop(context);
+                              });
                             },
                             child: const Text(
                               'Ξεκίνα απο την αρχή',
@@ -162,10 +166,10 @@ class _TimerPageState extends State<TimerPage> {
                     child: InkWell(
                       onTap: () {
                         loadingDialog(context);
-                        Navigator.of(context).push(
-                            CustomPageRouter.fadeThroughPageRoute(
-                                const CalendarPage())).then((value) => Navigator.pop(context));
-                       
+                        Navigator.of(context)
+                            .push(CustomPageRouter.fadeThroughPageRoute(
+                                const CalendarPage()))
+                            .then((value) => Navigator.pop(context));
                       },
                       child: const Icon(
                         Icons.calendar_month_outlined,
@@ -183,89 +187,14 @@ class _TimerPageState extends State<TimerPage> {
     );
   }
 
-  Future<dynamic> resetDialog(BuildContext context) => showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-            backgroundColor: Colors.tealAccent,
-            title: Text(
-              "Ουπς!",
-              style: TextStyle(
-                  color: customDialogPink(), fontWeight: FontWeight.bold),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "Αν πατησεις 'ναι' θα μηδενίσεις το χρονόμετρο.",
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: customDialogPink(),
-                      fontWeight: FontWeight.bold),
-                )
-              ],
-            ),
-            actions: [
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text("Όχι")),
-              const SizedBox(width: 10),
-              ElevatedButton(
-                  onPressed: () {
-                    resetTimer();
-                    Navigator.pop(context);
-                  },
-                  child: const Text(
-                    "Ναι",
-                  )),
-            ],
-          ));
-
-  Future<dynamic> completeDialog(BuildContext context) => showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-            backgroundColor: Colors.tealAccent,
-            title: Text(
-              // "Έβγαλες το μασελάκι σου;",
-              "Complete service?",
-              style: TextStyle(
-                  color: customDialogPink(), fontWeight: FontWeight.bold),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  // "Να σταματησω το χρονομετρο;",
-                  "do you want to stop the timer",
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: customDialogPink(),
-                      fontWeight: FontWeight.bold),
-                )
-              ],
-            ),
-            actions: [
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text("Όχι")),
-              const SizedBox(width: 10),
-              ElevatedButton(
-                  onPressed: () async {
-                    loadingDialog(context);
-                    int elapsedMinutes = (seconds / 60).floor();
-                    await CalendarController.createOrUpdateDay(elapsedMinutes);
-                    resetTimer();
-                    if (mounted) {
-                      Navigator.pop(context);
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: const Text(
-                    "Ναι",
-                  )),
-            ],
-          ));
+  void _saveTime() async {
+    loadingDialog(context);
+    int elapsedMinutes = (seconds / 60).floor();
+    await CalendarController.createOrUpdateDay(elapsedMinutes);
+    resetTimer();
+    if (mounted) {
+      Navigator.pop(context);
+      Navigator.pop(context);
+    }
+  }
 }
