@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:offline_app/componets/page_router.dart';
 import 'package:offline_app/controllers/calendar_controller.dart';
 import 'package:offline_app/models/calendar.dart';
-import 'package:offline_app/screens/edit_day._page.dart';
+import 'package:offline_app/screens/edit_day_page.dart';
 import 'package:offline_app/styles/color_style.dart';
 
 class CalendarPage extends StatefulWidget {
@@ -28,7 +28,6 @@ class _CalendarPageState extends State<CalendarPage> {
               (BuildContext context, AsyncSnapshot<List<Calendar>> snapshot) {
             if (snapshot.hasData) {
               List<Calendar> calendarDays = snapshot.data!;
-
               // make a list with the month and the days inside the days key
               List<Map<String, dynamic>> groupedItems =
                   groupCalendarItemsByMonthYear(
@@ -63,8 +62,14 @@ class _CalendarPageState extends State<CalendarPage> {
                         DateFormat('yyyy-MM-dd').format(DateTime.now()) ==
                             item['date'];
 
-                  
-                    return dayCard(context, item, isCurrentDate, dayOfWeek, dayOfMonth);
+                    return dayCard(
+                        context,
+                        item,
+                        isCurrentDate,
+                        dayOfWeek,
+                        dayOfMonth,
+                        snapshot
+                            .data!); // snapshot data because it contains all the dates
                   }).toList();
 
                   //insert empty items ahead of the days that the week is not starting
@@ -99,76 +104,105 @@ class _CalendarPageState extends State<CalendarPage> {
 
   ListTile headerTile(String headerTitle) {
     return ListTile(
-                  tileColor: Colors.white,
-                  title: Center(
-                    child: Text(
-                      headerTitle,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                );
+      tileColor: Colors.white,
+      title: Center(
+        child: Text(
+          headerTitle,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
   }
 
   Column daysGrid(Widget header, List<Widget> cards) {
     return Column(
-                  children: [
-                    header,
-                    SizedBox(
-                      height: 280,
-                      child: AnimationLimiter(
-                        child: GridView.count(
-                          physics:
-                              const NeverScrollableScrollPhysics(), //so we won't scroll the days only the big list with the months
-                          crossAxisCount: columnCount,
-                          children: List.generate(
-                            cards.length,
-                            (int index) {
-                              return AnimationConfiguration.staggeredGrid(
-                                position: index,
-                                duration: const Duration(milliseconds: 375),
-                                columnCount: columnCount,
-                                child: ScaleAnimation(
-                                  child: FadeInAnimation(
-                                    child: cards[index],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-  }
-
-  Tooltip dayCard(BuildContext context, Map<String, dynamic> item, bool isCurrentDate, String dayOfWeek, String dayOfMonth) {
-    return Tooltip(
-                    triggerMode: TooltipTriggerMode.longPress,
-                    message:
-                        "Μασελάκι: 6 ώρες σήμερα.\nΑυτή την εβδομάδα: 15 ώρες.",
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                            CustomPageRouter.fadeThroughPageRoute(EditDayPage(
-                          selectedDay: Calendar.fromMap(item),
-                        )));
-                      },
-                      child: Card(
-                        color: isCurrentDate ? Colors.yellow : Colors.white,
-                        elevation: 5,
-                        shadowColor: Colors.black,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                        margin: const EdgeInsets.all(5),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [Text(dayOfWeek), Text(dayOfMonth)],
-                        ),
+      children: [
+        header,
+        SizedBox(
+          height: 280,
+          child: AnimationLimiter(
+            child: GridView.count(
+              physics:
+                  const NeverScrollableScrollPhysics(), //so we won't scroll the days only the big list with the months
+              crossAxisCount: columnCount,
+              children: List.generate(
+                cards.length,
+                (int index) {
+                  return AnimationConfiguration.staggeredGrid(
+                    position: index,
+                    duration: const Duration(milliseconds: 375),
+                    columnCount: columnCount,
+                    child: ScaleAnimation(
+                      child: FadeInAnimation(
+                        child: cards[index],
                       ),
                     ),
                   );
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Tooltip dayCard(
+      BuildContext context,
+      Map<String, dynamic> item,
+      bool isCurrentDate,
+      String dayOfWeek,
+      String dayOfMonth,
+      List<Calendar> calendarDays) {
+
+    double weekDuration = 0;
+    // get the day hours 
+    double? dayDuration = double.tryParse(item["duration"] ?? '0');
+    String hours;
+    dayDuration != null || dayDuration != 0
+        ? hours = (dayDuration! / 60).toStringAsFixed(1)
+        : hours = '0';
+
+      //get teh week hours of the day 
+      DateTime formatedDate = DateTime.parse(item['date']);
+      List<String> weekDays = getWeekDates(formatedDate);
+      for (Calendar day in calendarDays) {
+        if (weekDays.contains(day.date)) {
+          double? dbDuration = double.tryParse(day.duration ?? "0");
+          if (dbDuration != 0) {
+            dbDuration = dbDuration! / 60;
+          }
+          weekDuration += dbDuration!;
+        }
+      
+    }
+
+    return Tooltip(
+      triggerMode: TooltipTriggerMode.longPress,
+      message:
+          "Μασελάκι: $hours ώρες σήμερα.\nΑυτή την εβδομάδα: ${weekDuration.toStringAsFixed(1)} ώρες.",
+      child: GestureDetector(
+        onTap: () {
+          Navigator.of(context)
+              .push(CustomPageRouter.fadeThroughPageRoute(EditDayPage(
+            selectedDay: Calendar.fromMap(item),
+          )));
+        },
+        child: Card(
+          color: isCurrentDate ? Colors.yellow : Colors.white,
+          elevation: 5,
+          shadowColor: Colors.black,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+          margin: const EdgeInsets.all(5),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [Text(dayOfWeek), Text(dayOfMonth)],
+          ),
+        ),
+      ),
+    );
   }
 
   List<Map<String, dynamic>> groupCalendarItemsByMonthYear(
@@ -193,5 +227,22 @@ class _CalendarPageState extends State<CalendarPage> {
       };
     }).toList();
     return result;
+  }
+
+  List<String> getWeekDates(DateTime date) {
+    List<String> weekDates = [];
+
+    // Get the Monday of the current week
+    DateTime monday = date.subtract(Duration(days: date.weekday - 1));
+
+    // Generate the dates for the entire week
+    for (int i = 0; i < 7; i++) {
+      DateTime currentDay = monday.add(Duration(days: i));
+      String formattedDate =
+          "${currentDay.year}-${currentDay.month.toString().padLeft(2, '0')}-${currentDay.day.toString().padLeft(2, '0')}";
+      weekDates.add(formattedDate);
+    }
+
+    return weekDates;
   }
 }

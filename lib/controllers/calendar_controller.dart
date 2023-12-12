@@ -24,73 +24,69 @@ class CalendarController extends Calendar {
     }
   }
 
-  static Future<Calendar?> createOrUpdateDay(int duration) async {
-    try {
-      var db = await SQLHelper.db();
+  static Future<void> createOrUpdateDay(int duration) async {
 
-      // Get the current date and time
-      var currentDate = DateTime.now();
+    if (duration > 0) {
+      try {
+        var db = await SQLHelper.db();
 
-      String currentDateString =
-          DateFormat('yyyy-MM-dd').format(DateTime.now());
+        // Get the current date and time
+        var currentDate = DateTime.now();
 
-      // Calculate the starting date by subtracting the duration in minutes
-      DateTime startingDate = currentDate.subtract(Duration(minutes: duration));
+  
+        String currentDateString =
+            DateFormat('yyyy-MM-dd').format(DateTime.now());
 
-      // Format the starting date as 'yyyy-MM-dd'
-      String startingDateString = DateFormat('yyyy-MM-dd').format(startingDate);
+        // Calculate the starting date by subtracting the duration in minutes
+        DateTime startingDate =
+            currentDate.subtract(Duration(minutes: duration));
 
-      // Query the database for the starting date
-      var results = await db
-          .query('calendar', where: "date = ?", whereArgs: [currentDateString]);
+        // Query the database for the starting date
+        var results = await db.query('calendar',
+            where: "date = ?", whereArgs: [currentDateString]);
 
-      // If a record for the starting date exists, update it
-      if (results.isNotEmpty) {
-        var item = Calendar.fromMap(results.first);
+        // If a record for the starting date exists, update it
+        if (results.isNotEmpty) {
+          var item = Calendar.fromMap(results.first);
 
-        int? dbDuration = int.tryParse(item.duration ?? '0');
+          int? dbDuration = int.tryParse(item.duration ?? '0');
 
-        int totalDuration = duration + (dbDuration ?? 0) + 120;
+          int totalDuration = duration + (dbDuration ?? 0);
 
-        item.duration = totalDuration.toString();
+          item.duration = totalDuration.toString();
 
-        item.details != null
-            ? item.details!.addAll({
-                "start": DateFormat('yyyy-MM-dd HH:mm')
-                    .format(startingDate)
-                    .toString(),
-                "end": DateFormat('yyyy-MM-dd HH:mm')
-                    .format(currentDate)
-                    .toString()
-              })
-            : item.details = {
-                "start": DateFormat('yyyy-MM-dd HH:mm')
-                    .format(startingDate)
-                    .toString(),
-                "end": DateFormat('yyyy-MM-dd HH:mm')
-                    .format(currentDate)
-                    .toString()
-              };
+          item.details != null
+              ? item.details!.addAll({
+                  DateFormat('HH:mm').format(startingDate).toString(): "start",
+                  DateFormat('HH:mm').format(DateTime.now()).toString(): "end"
+                })
+              : item.details = {
+                  DateFormat('HH:mm').format(startingDate).toString(): "start",
+                  DateFormat('HH:mm').format(DateTime.now()).toString(): "end"
+                };
 
-        db.update('calendar', item.toMap(), where: 'id = ?', whereArgs: [
-          item.id,
-        ]);
-        debugPrint("Congratulations! Duration saved successfully");
-      } else {
-        // If no record for the starting date exists, create a new one
-        Calendar newItem = Calendar(
-          date: currentDateString,
-          duration: duration.toString(),
-          details: {"start": startingDateString, "end": currentDateString},
-          comments: null,
-        );
+          db.update('calendar', item.toMap(), where: 'id = ?', whereArgs: [
+            item.id,
+          ]);
+          debugPrint("Congratulations! Duration saved successfully");
+        } else {
+          // If no record for the starting date exists, create a new one
+          Calendar newItem = Calendar(
+            date: currentDateString,
+            duration: duration.toString(),
+            details: {
+              DateFormat('HH:mm').format(startingDate).toString(): "start",
+              DateFormat('HH:mm').format(DateTime.now()).toString(): "end"
+            },
+            comments: null,
+          );
 
-        db.insert('calendar', newItem.toMap());
-        debugPrint("Congratulations! New record created successfully");
+          db.insert('calendar', newItem.toMap());
+          debugPrint("Congratulations! New record created successfully");
+        }
+      } catch (error) {
+        debugPrint(error.toString());
       }
-    } catch (error) {
-      debugPrint(error.toString());
     }
-    return null;
   }
 }

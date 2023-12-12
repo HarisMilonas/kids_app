@@ -255,6 +255,7 @@ class _TimerPageState extends State<TimerPage> {
                     loadingDialog(context);
                     int elapsedMinutes = (seconds / 60).floor();
                     await CalendarController.createOrUpdateDay(elapsedMinutes);
+                    resetTimer();
                     if (mounted) {
                       Navigator.pop(context);
                       Navigator.pop(context);
