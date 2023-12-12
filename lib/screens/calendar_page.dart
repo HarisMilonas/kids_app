@@ -37,10 +37,9 @@ class _CalendarPageState extends State<CalendarPage> {
                   groupCalendarItemsByMonthYear(
                       calendarDays.map((day) => day.toMap()).toList());
 
-
-              // value so the we navigate to the current month in the calendar     
-              String indexToScroll = DateFormat('MMMM yyyy').format(
-                  DateTime.now()); 
+              // value so the we navigate to the current month in the calendar
+              String indexToScroll =
+                  DateFormat('MMMM yyyy').format(DateTime.now());
 
               // index to scroll
               int counter = 0;
@@ -74,7 +73,6 @@ class _CalendarPageState extends State<CalendarPage> {
                   List<Widget> cards = (groupedItems[index]["days"]
                           as List<Map<String, dynamic>>)
                       .map((item) {
-                        
                     DateTime dateTime = DateTime.parse(item["date"]);
 
                     // Get abbreviated day of the week (e.g., "Mon", "Tue")
@@ -124,15 +122,15 @@ class _CalendarPageState extends State<CalendarPage> {
 
   AlertDialog errorDialog() {
     return AlertDialog(
-              title: Text(
-                "Ουπς!",
-                style: TextStyle(
-                    color: customDialogPink(), fontWeight: FontWeight.bold),
-              ),
-              content: const Center(
-                  child: Text(
-                      'Κάτι δεν πηγε πολύ καλα, προσπάθησε να ανοίξεις ξανα την εφαρμογή!')),
-            );
+      title: Text(
+        "Ουπς!",
+        style:
+            TextStyle(color: customDialogPink(), fontWeight: FontWeight.bold),
+      ),
+      content: const Center(
+          child: Text(
+              'Κάτι δεν πηγε πολύ καλα, προσπάθησε να ανοίξεις ξανα την εφαρμογή!')),
+    );
   }
 
   ListTile headerTile(String headerTitle) {
@@ -147,7 +145,7 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
-  Column daysGrid(Widget header, List<Widget> cards) {
+  Widget daysGrid(Widget header, List<Widget> cards) {
     return Column(
       children: [
         header,
@@ -155,8 +153,9 @@ class _CalendarPageState extends State<CalendarPage> {
           height: 280,
           child: AnimationLimiter(
             child: GridView.count(
-              physics:
-                  const NeverScrollableScrollPhysics(), //so we won't scroll the days only the big list with the months
+              physics: const NeverScrollableScrollPhysics(),
+
+              //so we won't scroll the days only the big list with the months
               crossAxisCount: columnCount,
               children: List.generate(
                 cards.length,
@@ -228,6 +227,7 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
           margin: const EdgeInsets.all(5),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [Text(dayOfWeek), Text(dayOfMonth)],
           ),

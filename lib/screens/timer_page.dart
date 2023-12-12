@@ -101,84 +101,87 @@ class _TimerPageState extends State<TimerPage> {
                 // gradient: const LinearGradient(
                 //     colors: [Colors.deepPurpleAccent, Colors.cyanAccent])
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // photos
-                  InkWell(
-                    onTap: () {
-                      completeDialog(context, _saveTime);
-                    },
-                    child: const CircleAvatar(
-                      backgroundImage: null,
-                    ),
-                  ),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const DatabaseList()));
-                      },
-                      child: const Text("See DB")),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
 
-                  //timer
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        _controller.text,
-                        style: timerStyle(),
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              resetDialog(context, () {
-                                resetTimer();
-                                Navigator.pop(context);
-                              });
-                            },
-                            child: const Text(
-                              'Ξεκίνα απο την αρχή',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w800, fontSize: 16),
-                            ),
-                          ),
-                          ElevatedButton(
-                            onPressed: startPauseTimer,
-                            child: Text(isRunning ? 'Σταμάτα' : 'Ξεκίνα',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w800, fontSize: 16)),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  //flutter_staggered_animations 1.1.1
-                  Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        color: Colors.white),
-                    child: InkWell(
+                    const SizedBox(height: 40),
+                    // photos
+                    InkWell(
                       onTap: () {
-                        loadingDialog(context);
-                        Navigator.of(context)
-                            .push(CustomPageRouter.fadeThroughPageRoute(
-                                const CalendarPage()))
-                            .then((value) => Navigator.pop(context));
+                        completeDialog(context, _saveTime);
                       },
-                      child: const Icon(
-                        Icons.calendar_month_outlined,
-                        size: 80,
-                        color: Colors.deepPurpleAccent,
+                      child: const CircleAvatar(
+                        backgroundImage: null,
                       ),
                     ),
-                  ),
-                ],
+                    TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const DatabaseList()));
+                        },
+                        child: const Text("See DB")),
+                
+                    //timer
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _controller.text,
+                          style: timerStyle(),
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                resetDialog(context, () {
+                                  resetTimer();
+                                  Navigator.pop(context);
+                                });
+                              },
+                              child: const Icon(
+                                Icons.restart_alt,
+                                size: 45,
+                              ),
+                            ),
+                            ElevatedButton(
+                                onPressed: startPauseTimer,
+                                child: Icon(
+                                  isRunning
+                                      ? Icons.pause_circle
+                                      : Icons.not_started,
+                                  size: 45,
+                                )),
+                          ],
+                        ),
+                      ],
+                    ),
+                
+                    //flutter_staggered_animations 1.1.1
+                    Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          color: Colors.white),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.of(context).push(
+                              CustomPageRouter.fadeThroughPageRoute(
+                                  const CalendarPage()));
+                        },
+                        child: const Icon(
+                          Icons.calendar_month_outlined,
+                          size: 80,
+                          color: Colors.deepPurpleAccent,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

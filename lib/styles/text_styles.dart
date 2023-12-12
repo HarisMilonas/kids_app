@@ -13,7 +13,7 @@ TextStyle headerStyles() {
 
 TextStyle timerStyle() {
   return const TextStyle(
-      fontSize: 40,
+      fontSize: 50,
       color: Color.fromARGB(255, 255, 245, 245),
       fontWeight: FontWeight.bold,
       fontStyle: FontStyle.italic,
