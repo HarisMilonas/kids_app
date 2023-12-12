@@ -6,6 +6,8 @@ import 'package:offline_app/screens/timer_page.dart';
 
 import 'package:offline_app/styles/text_styles.dart';
 
+import 'package:intl/date_symbol_data_local.dart';
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
@@ -14,6 +16,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+   @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

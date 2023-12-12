@@ -6,6 +6,7 @@ import 'package:offline_app/controllers/calendar_controller.dart';
 import 'package:offline_app/models/calendar.dart';
 import 'package:offline_app/screens/edit_day_page.dart';
 import 'package:offline_app/styles/color_style.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({Key? key}) : super(key: key);
@@ -16,6 +17,8 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   int columnCount = 7;
+
+  final AutoScrollController _controller = AutoScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +31,33 @@ class _CalendarPageState extends State<CalendarPage> {
               (BuildContext context, AsyncSnapshot<List<Calendar>> snapshot) {
             if (snapshot.hasData) {
               List<Calendar> calendarDays = snapshot.data!;
+
               // make a list with the month and the days inside the days key
               List<Map<String, dynamic>> groupedItems =
                   groupCalendarItemsByMonthYear(
                       calendarDays.map((day) => day.toMap()).toList());
 
+
+              // value so the we navigate to the current month in the calendar     
+              String indexToScroll = DateFormat('MMMM yyyy').format(
+                  DateTime.now()); 
+
+              // index to scroll
+              int counter = 0;
+
+              //check any value to match todays month and year
+              for (var item in groupedItems) {
+                if (item["month_year"] == indexToScroll) {
+                  break;
+                }
+                counter++;
+              }
+
+              _controller.scrollToIndex(counter,
+                  preferPosition: AutoScrollPosition.begin);
+
               return ListView.builder(
+                controller: _controller,
                 itemCount: groupedItems.length,
                 itemBuilder: (context, index) {
                   String headerTitle = groupedItems[index]['month_year'];
@@ -77,7 +101,11 @@ class _CalendarPageState extends State<CalendarPage> {
                     cards.insert(0, Tooltip(message: "", child: Container()));
                   }
 
-                  return daysGrid(header, cards);
+                  return AutoScrollTag(
+                      key: ValueKey(index),
+                      index: index,
+                      controller: _controller,
+                      child: daysGrid(header, cards));
                 },
               );
             } else if (snapshot.hasError) {
@@ -130,7 +158,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 (int index) {
                   return AnimationConfiguration.staggeredGrid(
                     position: index,
-                    duration: const Duration(milliseconds: 375),
+                    duration: const Duration(milliseconds: 400),
                     columnCount: columnCount,
                     child: ScaleAnimation(
                       child: FadeInAnimation(
@@ -154,27 +182,25 @@ class _CalendarPageState extends State<CalendarPage> {
       String dayOfWeek,
       String dayOfMonth,
       List<Calendar> calendarDays) {
-
     double weekDuration = 0;
-    // get the day hours 
+    // get the day hours
     double? dayDuration = double.tryParse(item["duration"] ?? '0');
     String hours;
     dayDuration != null || dayDuration != 0
         ? hours = (dayDuration! / 60).toStringAsFixed(1)
         : hours = '0';
 
-      //get teh week hours of the day 
-      DateTime formatedDate = DateTime.parse(item['date']);
-      List<String> weekDays = getWeekDates(formatedDate);
-      for (Calendar day in calendarDays) {
-        if (weekDays.contains(day.date)) {
-          double? dbDuration = double.tryParse(day.duration ?? "0");
-          if (dbDuration != 0) {
-            dbDuration = dbDuration! / 60;
-          }
-          weekDuration += dbDuration!;
+    //get teh week hours of the day
+    DateTime formatedDate = DateTime.parse(item['date']);
+    List<String> weekDays = getWeekDates(formatedDate);
+    for (Calendar day in calendarDays) {
+      if (weekDays.contains(day.date)) {
+        double? dbDuration = double.tryParse(day.duration ?? "0");
+        if (dbDuration != 0) {
+          dbDuration = dbDuration! / 60;
         }
-      
+        weekDuration += dbDuration!;
+      }
     }
 
     return Tooltip(

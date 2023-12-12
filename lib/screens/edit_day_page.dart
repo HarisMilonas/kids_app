@@ -62,15 +62,21 @@ class _EditDayPageState extends State<EditDayPage> {
 
     String dayTitle = DateFormat('yMMMMEEEEd').format(formattedDate);
 
+    items.add(Center(
+        child: Text(
+      dayTitle,
+      style: editPageStyle(),
+    )));
+    items.add(const SizedBox(height: 50));
+   
+
     if (hours.isNotEmpty) {
-      items.add(Center(
-          child: Text(
-        dayTitle,
-        style: editPageStyle(),
-      )));
-      items.add(const SizedBox(height: 50));
-      items.add(Center(child: Text("Today's hours", style: editPageStyle(),)));
-      items.add(const SizedBox(height: 15));
+       items.add(Center(
+        child: Text(
+      "Today's hours",
+      style: editPageStyle(),
+    )));
+    items.add(const SizedBox(height: 15));
 
       List<String> keys = hours.keys.toList();
 

@@ -161,9 +161,11 @@ class _TimerPageState extends State<TimerPage> {
                         color: Colors.white),
                     child: InkWell(
                       onTap: () {
+                        loadingDialog(context);
                         Navigator.of(context).push(
                             CustomPageRouter.fadeThroughPageRoute(
-                                const CalendarPage()));
+                                const CalendarPage())).then((value) => Navigator.pop(context));
+                       
                       },
                       child: const Icon(
                         Icons.calendar_month_outlined,
