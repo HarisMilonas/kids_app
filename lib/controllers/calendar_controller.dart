@@ -24,22 +24,26 @@ class CalendarController extends Calendar {
     }
   }
 
-  static Future<void> createOrUpdateDay(int duration) async {
-    duration = 143;
+  static Future<void> updateDay(Calendar item) async {
+    try {
+      var db = await SQLHelper.db();
 
+      await db.update('calendar', item.toMap(), where: 'id = ?', whereArgs: [
+        item.id,
+      ]);
+      debugPrint("Record Updated Succesfully!");
+    } catch (error) {
+      debugPrint(error.toString());
+    }
+  }
+
+  static Future<void> createOrUpdateDay(int duration) async {
     if (duration > 0) {
       try {
         var db = await SQLHelper.db();
 
         // Get the current date and time
-        // var currentDate = DateTime.now();
-
-        var currentDate = DateTime(
-          2023,
-          12,
-          15,
-          2,
-        );
+        var currentDate = DateTime.now();
 
         String currentDateString =
             DateFormat('yyyy-MM-dd HH:mm').format(currentDate);
