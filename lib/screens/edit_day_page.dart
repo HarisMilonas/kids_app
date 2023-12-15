@@ -83,6 +83,11 @@ class _EditDayPageState extends State<EditDayPage> {
 
     items.add(const SizedBox(height: 50));
 
+    if(hours.isEmpty){
+        hours.addAll({"00:00": "start", "00:01": "end"});
+      _addControllers();
+    }
+
     if (hours.isNotEmpty) {
       items.add(Center(
           child: Text(
@@ -105,7 +110,7 @@ class _EditDayPageState extends State<EditDayPage> {
         items.add(row);
         items.add(const SizedBox(height: 15));
       }
-    }
+    } 
     double total = 0;
     if (duration != '0') {
       total = double.tryParse(duration)! / 60;
@@ -122,60 +127,61 @@ class _EditDayPageState extends State<EditDayPage> {
     return Center(
       child: ElevatedButton(
           onPressed: updateDay,
-          child:  Text("Save", style: editPageStyle(),)),
+          child: Text(
+            "Save",
+            style: editPageStyle(),
+          )),
     );
   }
 
   void updateDay() async {
-          bool isValid = _formKey.currentState!.validate();
-          if (!isValid) {
-            return;
-          }
-  
-          Map<String, dynamic> newHours = {};
-          int newDuration = 0;
-  
-          for (int i = 0; i < controllersList.length; i += 2) {
-            DateTime startTime =
-                DateFormat('HH:mm').parse(controllersList[i].text);
-            DateTime endTime =
-                DateFormat('HH:mm').parse(controllersList[i + 1].text);
-  
-            newHours.isNotEmpty
-                ? newHours.addAll({
-                    DateFormat('HH:mm').format(startTime): "start",
-                    DateFormat('HH:mm').format(endTime): "end"
-                  })
-                : newHours = {
-                    DateFormat('HH:mm').format(startTime): "start",
-                    DateFormat('HH:mm').format(endTime): "end"
-                  };
-  
-            // Calculate the duration using Duration constructor
-            Duration twentyFourduration;
-            if (endTime.isAfter(startTime)) {
-              twentyFourduration = endTime.difference(startTime);
-            } else {
-              // If the end time is earlier than the start time (crossing midnight)
-              twentyFourduration = Duration(
-                hours: 24 - startTime.hour + endTime.hour,
-                minutes: endTime.minute - startTime.minute,
-              );
-            }
-  
-            // Accumulate the durations in minutes
-            newDuration += twentyFourduration.inMinutes;
-  
-            widget.selectedDay.details = newHours;
-            widget.selectedDay.duration = newDuration.toString();
-  
-            await CalendarController.updateDay(widget.selectedDay);
-            setState(() {
-              hours = newHours;
-              duration = newDuration.toString();
-            });
-          }
-        }
+    bool isValid = _formKey.currentState!.validate();
+    if (!isValid) {
+      return;
+    }
+
+    Map<String, dynamic> newHours = {};
+    int newDuration = 0;
+
+    for (int i = 0; i < controllersList.length; i += 2) {
+      DateTime startTime = DateFormat('HH:mm').parse(controllersList[i].text);
+      DateTime endTime = DateFormat('HH:mm').parse(controllersList[i + 1].text);
+
+      newHours.isNotEmpty
+          ? newHours.addAll({
+              DateFormat('HH:mm').format(startTime): "start",
+              DateFormat('HH:mm').format(endTime): "end"
+            })
+          : newHours = {
+              DateFormat('HH:mm').format(startTime): "start",
+              DateFormat('HH:mm').format(endTime): "end"
+            };
+
+      // Calculate the duration using Duration constructor
+      Duration twentyFourduration;
+      if (endTime.isAfter(startTime)) {
+        twentyFourduration = endTime.difference(startTime);
+      } else {
+        // If the end time is earlier than the start time (crossing midnight)
+        twentyFourduration = Duration(
+          hours: 24 - startTime.hour + endTime.hour,
+          minutes: endTime.minute - startTime.minute,
+        );
+      }
+
+      // Accumulate the durations in minutes
+      newDuration += twentyFourduration.inMinutes;
+
+      widget.selectedDay.details = newHours;
+      widget.selectedDay.duration = newDuration.toString();
+
+      await CalendarController.updateDay(widget.selectedDay);
+      setState(() {
+        hours = newHours;
+        duration = newDuration.toString();
+      });
+    }
+  }
 
   Column totalWidget(double total) {
     return Column(
@@ -225,12 +231,12 @@ class _EditDayPageState extends State<EditDayPage> {
           child: SizedBox(
             width: 80,
             child: TextFormField(
-              keyboardType:TextInputType.number,
+              keyboardType: TextInputType.datetime,
               textAlign: TextAlign.center,
               style: editPageStyle(),
               controller: startController,
               validator: CustomValidators().timeValidator,
-              decoration: const InputDecoration(border: InputBorder.none),
+              decoration: const InputDecoration(border: InputBorder.none, errorMaxLines: 2),
             ),
           ),
         ),
@@ -249,12 +255,12 @@ class _EditDayPageState extends State<EditDayPage> {
           child: SizedBox(
             width: 80,
             child: TextFormField(
-              keyboardType:TextInputType.number,
+              keyboardType: TextInputType.datetime,
               textAlign: TextAlign.center,
               style: editPageStyle(),
               controller: endController,
               validator: CustomValidators().timeValidator,
-              decoration: const InputDecoration(border: InputBorder.none),
+              decoration: const InputDecoration(border: InputBorder.none,  errorMaxLines: 2),
             ),
           ),
         ),
