@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:intl/intl.dart';
+import 'package:offline_app/componets/dialogs/load_calendar_page_dialog.dart';
 import 'package:offline_app/componets/page_router.dart';
 import 'package:offline_app/controllers/calendar_controller.dart';
 import 'package:offline_app/models/calendar.dart';
@@ -22,6 +24,12 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    // after the widget has been build
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      calendarDialog(context);
+    
+    });
+
     return Scaffold(
         body: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
@@ -216,7 +224,10 @@ class _CalendarPageState extends State<CalendarPage> {
           Navigator.of(context)
               .push(CustomPageRouter.fadeThroughPageRoute(EditDayPage(
             selectedDay: Calendar.fromMap(item),
-          )));
+          )))
+              .then((value) {
+            setState(() {});
+          });
         },
         child: Card(
           color: isCurrentDate ? Colors.yellow : Colors.white,
