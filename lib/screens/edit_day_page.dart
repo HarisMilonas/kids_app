@@ -86,6 +86,7 @@ class _EditDayPageState extends State<EditDayPage> {
     if (hours.isNotEmpty) {
       items.add(Center(
           child: Text(
+        //"Σημερινές ώρες"
         "Today's hours",
         style: editPageStyle(),
       )));
@@ -183,6 +184,7 @@ class _EditDayPageState extends State<EditDayPage> {
       children: [
         Text(
           "Total Hours Today",
+          // "Σύνολο",
           style: editPageStyle(),
         ),
         const SizedBox(height: 15),

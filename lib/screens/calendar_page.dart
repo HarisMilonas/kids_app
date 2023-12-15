@@ -158,10 +158,10 @@ class _CalendarPageState extends State<CalendarPage> {
       children: [
         header,
         SizedBox(
-          height: 280,
+          height: 270,
           child: AnimationLimiter(
             child: GridView.count(
-              physics: const NeverScrollableScrollPhysics(),
+              physics:const BouncingScrollPhysics(),
 
               //so we won't scroll the days only the big list with the months
               crossAxisCount: columnCount,
