@@ -29,7 +29,7 @@ class _EditDayPageState extends State<EditDayPage> {
   @override
   void initState() {
     duration = widget.selectedDay.duration ?? '0';
-    hours = widget.selectedDay.details ?? {};
+    // hours = widget.selectedDay.details ?? {};
     date = widget.selectedDay.date;
     dayTitle = DateFormat('yMMMMEEEEd').format(DateTime.parse(date));
 
@@ -172,7 +172,7 @@ class _EditDayPageState extends State<EditDayPage> {
       // Accumulate the durations in minutes
       newDuration += twentyFourduration.inMinutes;
 
-      widget.selectedDay.details = newHours;
+      // widget.selectedDay.details = newHours;
       widget.selectedDay.duration = newDuration.toString();
 
       await CalendarController.updateDay(widget.selectedDay);
