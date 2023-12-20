@@ -21,7 +21,11 @@ class Calendar {
         id: map['id'],
         date: map["date"],
         duration: map['duration'],
-       details: map['details'] != null ? (jsonDecode(map['details']) as List).cast<Map<String, dynamic>>() : null,
+       details: map['details'] != null 
+    ? (jsonDecode(map['details']) is List 
+        ? (jsonDecode(map['details']) as List).cast<Map<String, dynamic>>() 
+        : null) 
+    : null,
         comments: map["comments"]);
   }
 
